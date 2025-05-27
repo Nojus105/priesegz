@@ -4,14 +4,15 @@ int main()
 {
     SetConsoleOutputCP(CP_UTF8);
     std::unordered_map<std::string, std::vector<int>> tekstas;
-    cout << "Iveskite failo pavadinima: ";
+    std::set<std::string> url;
+    std::cout << "Iveskite failo pavadinima: ";
     std::string failas;
-    cin >> failas;
+    std::cin >> failas;
     std::ifstream fd(failas);
     while (!fd.is_open())
     {
-        cout << "Failas nerastas, iveskite dar karta: ";
-        cin >> failas;
+        std::cout << "Failas nerastas, iveskite dar karta: ";
+        std::cin >> failas;
         fd.open(failas);
     }
     std::string line;
@@ -23,6 +24,24 @@ int main()
         std::string x;
         while (iss >> x)
         {
+            while (!x.empty() && std::ispunct(x.back()))
+                x.pop_back();
+            while (!x.empty() && std::ispunct(x.front()))
+                x.erase(x.begin());
+
+            for (const auto &tld : tlds)
+            {
+                size_t pos = x.find(tld);
+                if (pos != std::string::npos)
+                {
+                    if (pos + tld.length() == x.length() || x[pos + tld.length()] == '/' || x[pos + tld.length()] == '?' || x[pos + tld.length()] == '#')
+                    {
+                        url.insert(x);
+                        break;
+                    }
+                }
+            }
+
             x.erase(std::remove_if(x.begin(), x.end(), [](unsigned char c)
                                    { return std::ispunct(c); }),
                     x.end());
@@ -40,17 +59,31 @@ int main()
         if (p.second.size() > 1)
         {
             fr << p.first << " (" << p.second.size() << " kartus) eilutese: ";
-            for (size_t i = 0; i < p.second.size(); ++i)
+            std::set<int> lines(p.second.begin(), p.second.end());
+            size_t count = 0;
+            for (int line : lines)
             {
-                if (p.second[i] != p.second[i + 1])
-                    fr << p.second[i];
-                if ((i != p.second.size() - 1) && p.second[i] != p.second[i + 1])
+                fr << line;
+                if (++count < lines.size())
                     fr << ", ";
             }
             fr << "\n";
         }
     }
     fr.close();
+    std::ofstream fr2("url.txt");
+    if (url.empty())
+    {
+        fr2 << "Nerasta nei viena nuoroda";
+    }
+    else
+    {
+        for (const auto &u : url)
+        {
+            fr2 << u << "\n";
+        }
+    }
+    fr2.close();
 
     return 0;
 }

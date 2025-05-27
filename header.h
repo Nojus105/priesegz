@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <sstream>
 #include <vector>
+#include <cctype>
+#include <set>
 
-using std::cout;
-using std::cin;
+const std::vector<std::string> tlds = {".com", ".org", ".lt", ".net", ".edu", ".gov", ".info", ".io", ".co", ".uk", ".ru", ".de", ".fr", ".it", ".eu"};
