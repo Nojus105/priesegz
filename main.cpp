@@ -78,6 +78,9 @@ int main()
         fr2 << "Nerasta nei viena nuoroda";
     }
     fr2.close();
+    std::cout << "Rezultatai issaugoti 'rezultatai.txt' ir 'url.txt' failuose.\n";
+    std::cout << "Iseiti is programos paspauskite bet kuri klavisa...\n";
+    _getch();
 
     return 0;
 }
