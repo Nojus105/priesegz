@@ -7,6 +7,7 @@
 #include <sstream>
 #include <vector>
 #include <cctype>
+#include <unordered_set>
 #include <set>
 
 const std::vector<std::string> tlds = {".com", ".org", ".lt", ".net", ".edu", ".gov", ".info", ".io", ".co", ".uk", ".ru", ".de", ".fr", ".it", ".eu"};

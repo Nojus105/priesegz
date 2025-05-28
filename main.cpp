@@ -4,7 +4,7 @@ int main()
 {
     SetConsoleOutputCP(CP_UTF8);
     std::unordered_map<std::string, std::vector<int>> tekstas;
-    std::set<std::string> url;
+    std::unordered_set<std::string> url;
     std::cout << "Iveskite failo pavadinima: ";
     std::string failas;
     std::cin >> failas;
