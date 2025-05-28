@@ -4,7 +4,6 @@ int main()
 {
     SetConsoleOutputCP(CP_UTF8);
     std::unordered_map<std::string, std::vector<int>> tekstas;
-    std::unordered_set<std::string> url;
     std::cout << "Iveskite failo pavadinima: ";
     std::string failas;
     std::cin >> failas;
@@ -24,27 +23,12 @@ int main()
         std::string x;
         while (iss >> x)
         {
+            // Remove punctuation only from start and end
             while (!x.empty() && std::ispunct(x.back()))
                 x.pop_back();
             while (!x.empty() && std::ispunct(x.front()))
                 x.erase(x.begin());
 
-            for (const auto &tld : tlds)
-            {
-                size_t pos = x.find(tld);
-                if (pos != std::string::npos)
-                {
-                    if (pos + tld.length() == x.length() || x[pos + tld.length()] == '/' || x[pos + tld.length()] == '?' || x[pos + tld.length()] == '#')
-                    {
-                        url.insert(x);
-                        break;
-                    }
-                }
-            }
-
-            x.erase(std::remove_if(x.begin(), x.end(), [](unsigned char c)
-                                   { return std::ispunct(c); }),
-                    x.end());
             std::transform(x.begin(), x.end(), x.begin(), ::tolower);
             if (!x.empty())
             {
@@ -72,16 +56,26 @@ int main()
     }
     fr.close();
     std::ofstream fr2("url.txt");
-    if (url.empty())
+    bool url = false;
+    for (const auto &p : tekstas)
+    {
+        for (const auto &tld : tlds)
+        {
+            size_t pos = p.first.find(tld);
+            if (pos != std::string::npos)
+            {
+                if (pos + tld.length() == p.first.length() || p.first[pos + tld.length()] == '/' || p.first[pos + tld.length()] == '?' || p.first[pos + tld.length()] == '#')
+                {
+                    fr2 << p.first << "\n";
+                    url = true;
+                    break;
+                }
+            }
+        }
+    }
+    if (!url)
     {
         fr2 << "Nerasta nei viena nuoroda";
-    }
-    else
-    {
-        for (const auto &u : url)
-        {
-            fr2 << u << "\n";
-        }
     }
     fr2.close();
 
