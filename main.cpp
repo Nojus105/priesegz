@@ -23,7 +23,6 @@ int main()
         std::string x;
         while (iss >> x)
         {
-            // Remove punctuation only from start and end
             while (!x.empty() && std::ispunct(x.back()))
                 x.pop_back();
             while (!x.empty() && std::ispunct(x.front()))
@@ -37,10 +36,50 @@ int main()
         }
     }
     fd.close();
+    std::vector<std::string> tlds;
+    std::ifstream file("tlds.txt");
+    while (std::getline(file, line))
+    {
+        if (!line.empty())
+        {
+            std::transform(line.begin(), line.end(), line.begin(), ::tolower);
+            tlds.push_back(line);
+        }
+    }
+    std::set<std::string> link_words;
+    std::ofstream fr2("url.txt");
+    bool url = false;
+    for (const auto &p : tekstas)
+    {
+        for (const auto &tld : tlds)
+        {
+            std::string tld_with_dot = "." + tld;
+            size_t pos = p.first.rfind(tld_with_dot);
+            if (pos != std::string::npos)
+            {
+                size_t after_tld = pos + tld_with_dot.length();
+                if (
+                    (after_tld == p.first.length()) ||
+                    (after_tld < p.first.length() &&
+                     (p.first[after_tld] == '/' || p.first[after_tld] == '?' || p.first[after_tld] == '#')))
+                {
+                    fr2 << p.first << "\n";
+                    link_words.insert(p.first);
+                    url = true;
+                    break;
+                }
+            }
+        }
+    }
+    if (!url)
+    {
+        fr2 << "Nerasta nei viena nuoroda";
+    }
+    fr2.close();
     std::ofstream fr("rezultatai.txt");
     for (const auto &p : tekstas)
     {
-        if (p.second.size() > 1)
+        if (p.second.size() > 1 && link_words.find(p.first) == link_words.end())
         {
             fr << p.first << " (" << p.second.size() << " kartus) eilutese: ";
             std::set<int> lines(p.second.begin(), p.second.end());
@@ -55,30 +94,35 @@ int main()
         }
     }
     fr.close();
-    std::ofstream fr2("url.txt");
-    bool url = false;
+    std::set<std::string> ort_words;
     for (const auto &p : tekstas)
     {
-        for (const auto &tld : tlds)
+        if (p.first.find("ort") != std::string::npos)
         {
-            size_t pos = p.first.find(tld);
-            if (pos != std::string::npos)
+            std::string cleaned = p.first;
+            for (size_t i = 0; i < cleaned.size(); ++i)
             {
-                if (pos + tld.length() == p.first.length() || p.first[pos + tld.length()] == '/' || p.first[pos + tld.length()] == '?' || p.first[pos + tld.length()] == '#')
+                if (std::ispunct(cleaned[i]) && cleaned[i] != '-')
                 {
-                    fr2 << p.first << "\n";
-                    url = true;
+                    cleaned = cleaned.substr(0, i);
                     break;
                 }
             }
+            if (!cleaned.empty())
+                ort_words.insert(cleaned);
         }
     }
-    if (!url)
+
+    std::vector<std::string> ort_vec(ort_words.begin(), ort_words.end());
+    std::sort(ort_vec.rbegin(), ort_vec.rend());
+
+    std::ofstream fr3("ort.txt");
+    for (const auto &word : ort_vec)
     {
-        fr2 << "Nerasta nei viena nuoroda";
+        fr3 << word << "\n";
     }
-    fr2.close();
-    std::cout << "Rezultatai issaugoti 'rezultatai.txt' ir 'url.txt' failuose.\n";
+    fr3.close();
+    std::cout << "Rezultatai issaugoti 'rezultatai.txt' 'url.txt' ir 'ort.txt' failuose.\n";
     std::cout << "Iseiti is programos paspauskite bet kuri klavisa...\n";
     _getch();
 

@@ -10,5 +10,3 @@
 #include <unordered_set>
 #include <set>
 #include <conio.h>
-
-const std::vector<std::string> tlds = {".com", ".org", ".lt", ".net", ".edu", ".gov", ".info", ".io", ".co", ".uk", ".ru", ".de", ".fr", ".it", ".eu"};
